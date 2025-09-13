@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive Bubble Sort Animation - A visual teaching tool for understanding the bubble sort algorithm">
+    <meta name="author" content="Bubble Sort Visualizer">
+    <meta property="og:title" content="Bubble Sort Interactive Animation">
+    <meta property="og:description" content="Learn bubble sort algorithm through interactive visualization">
+    <meta property="og:type" content="website">
+    <title>Bubble Sort Interactive Animation</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .github-corner {
+            position: absolute;
+            top: 0;
+            right: 0;
+            border: 0;
+            fill: #fff;
+            color: #667eea;
+            z-index: 1000;
+        }
+
+        .github-corner:hover .octo-arm {
+            animation: octocat-wave 560ms ease-in-out;
+        }
+
+        @keyframes octocat-wave {
+            0%, 100% { transform: rotate(0) }
+            20%, 60% { transform: rotate(-25deg) }
+            40%, 80% { transform: rotate(10deg) }
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .array-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            margin: 40px 0;
+            height: 300px;
+            position: relative;
+            padding: 0 10px;
+        }
+
+        .array-element {
+            flex: 1;
+            max-width: 60px;
+            margin: 0 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px 10px 0 0;
+            position: relative;
+            transition: all 0.5s ease;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .array-element.comparing {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 5px 20px rgba(240, 147, 251, 0.5);
+        }
+
+        .array-element.sorted {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .array-element.swapping {
+            animation: swap 0.5s ease;
+        }
+
+        @keyframes swap {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(5deg); }
+        }
+
+        .value-label {
+            position: absolute;
+            bottom: -30px;
+            color: #333;
+            font-weight: bold;
+            font-size: 18px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button:disabled::before {
+            display: none;
+        }
+
+        .info-panel {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 150px;
+            justify-content: center;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: bold;
+        }
+
+        .info-value {
+            color: #333;
+            font-size: 20px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        input[type="range"] {
+            width: 200px;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .input-section {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        input[type="text"] {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            width: 300px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .status-message {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #666;
+            min-height: 30px;
+            font-weight: 500;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .legend-color.comparing {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .legend-color.sorted {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .legend-color.unsorted {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .algorithm-info {
+            background: linear-gradient(135deg, #e8f4f8 0%, #dff6ff 100%);
+            border-left: 4px solid #4facfe;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .algorithm-info h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .algorithm-info p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .complexity-table {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .complexity-item {
+            text-align: center;
+            padding: 8px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .complexity-label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .complexity-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .array-element {
+                margin: 0 2px;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            input[type="text"] {
+                width: 100%;
+            }
+
+            .info-row {
+                flex-direction: column;
+            }
+
+            .github-corner svg {
+                width: 60px;
+                height: 60px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- GitHub Corner -->
+    <a href="https://github.com/YOUR_USERNAME/bubble-sort-animation" class="github-corner" aria-label="View source on GitHub">
+        <svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true">
+            <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+            <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+            <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+        </svg>
+    </a>
+
+    <div class="container">
+        <h1>🎯 Bubble Sort Interactive Animation</h1>
+        <p class="subtitle">A visual teaching tool for understanding the bubble sort algorithm</p>
+        
+        <div class="input-section">
+            <input type="text" id="arrayInput" placeholder="Enter numbers separated by commas (e.g., 64,34,25,12,22)">
+            <button onclick="setCustomArray()">Set Array</button>
+            <button onclick="generateRandomArray()">Random Array</button>
+        </div>
+
+        <div class="array-container" id="arrayContainer"></div>
+
+        <div class="status-message" id="statusMessage">Ready to start sorting...</div>
+
+        <div class="controls">
+            <button onclick="startSort()" id="startBtn">Start Sort</button>
+            <button onclick="nextStep()" id="stepBtn">Next Step</button>
+            <button onclick="autoPlay()" id="autoBtn">Auto Play</button>
+            <button onclick="pauseSort()" id="pauseBtn" disabled>Pause</button>
+            <button onclick="resetArray()" id="resetBtn">Reset</button>
+        </div>
+
+        <div class="info-panel">
+            <div class="info-row">
+                <div class="info-item">
+                    <span class="info-label">Current Pass:</span>
+                    <span class="info-value" id="passCount">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Comparisons:</span>
+                    <span class="info-value" id="compareCount">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Swaps:</span>
+                    <span class="info-value" id="swapCount">0</span>
+                </div>
+            </div>
+            <div class="speed-control">
+                <span class="info-label">Animation Speed:</span>
+                <input type="range" id="speedSlider" min="100" max="2000" value="1000">
+                <span id="speedValue">1.0s</span>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color comparing"></div>
+                <span>Comparing</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color sorted"></div>
+                <span>Sorted</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color unsorted"></div>
+                <span>Unsorted</span>
+            </div>
+        </div>
+
+        <div class="algorithm-info">
+            <h3>Algorithm Details</h3>
+            <p><strong>Bubble Sort</strong> repeatedly steps through the list, compares adjacent elements and swaps them if they are in wrong order. The pass through the list is repeated until the list is sorted. Like bubbles rising to the surface, larger elements "bubble up" to the end of the array.</p>
+            <div class="complexity-table">
+                <div class="complexity-item">
+                    <div class="complexity-label">Best Case</div>
+                    <div class="complexity-value">O(n)</div>
+                </div>
+                <div class="complexity-item">
+                    <div class="complexity-label">Average Case</div>
+                    <div class="complexity-value">O(n²)</div>
+                </div>
+                <div class="complexity-item">
+                    <div class="complexity-label">Worst Case</div>
+                    <div class="complexity-value">O(n²)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let array = [64, 34, 25, 12, 22, 11, 90, 45];
+        let originalArray = [...array];
+        let i = 0;
+        let j = 0;
+        let sorting = false;
+        let autoPlaying = false;
+        let passCount = 0;
+        let compareCount = 0;
+        let swapCount = 0;
+        let animationSpeed = 1000;
+        let autoPlayInterval = null;
+
+        // Initialize
+        function init() {
+            renderArray();
+            updateInfo();
+        }
+
+        // Render array visualization
+        function renderArray() {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            const maxValue = Math.max(...array);
+            
+            array.forEach((value, index) => {
+                const element = document.createElement('div');
+                element.className = 'array-element';
+                element.style.height = `${(value / maxValue) * 250}px`;
+                element.id = `element-${index}`;
+                
+                // Add sorted styling
+                if (index >= array.length - passCount) {
+                    element.classList.add('sorted');
+                }
+                
+                const label = document.createElement('div');
+                label.className = 'value-label';
+                label.textContent = value;
+                element.appendChild(label);
+                
+                container.appendChild(element);
+            });
+        }
+
+        // Set custom array
+        function setCustomArray() {
+            const input = document.getElementById('arrayInput').value;
+            if (!input) {
+                alert('Please enter array values!');
+                return;
+            }
+            
+            const newArray = input.split(',').map(num => {
+                const parsed = parseInt(num.trim());
+                if (isNaN(parsed)) {
+                    alert('Please enter valid numbers!');
+                    return null;
+                }
+                return parsed;
+            });
+            
+            if (newArray.includes(null)) return;
+            if (newArray.length < 2) {
+                alert('Array must have at least 2 elements!');
+                return;
+            }
+            if (newArray.length > 12) {
+                alert('Array can have maximum 12 elements for better visualization!');
+                return;
+            }
+            
+            array = newArray;
+            originalArray = [...array];
+            resetArray();
+        }
+
+        // Generate random array
+        function generateRandomArray() {
+            const size = Math.floor(Math.random() * 5) + 6; // 6-10 elements
+            array = [];
+            for (let i = 0; i < size; i++) {
+                array.push(Math.floor(Math.random() * 90) + 10); // Random numbers 10-99
+            }
+            originalArray = [...array];
+            document.getElementById('arrayInput').value = array.join(',');
+            resetArray();
+        }
+
+        // Start sorting
+        function startSort() {
+            if (sorting) return;
+            sorting = true;
+            i = 0;
+            j = 0;
+            passCount = 0;
+            compareCount = 0;
+            swapCount = 0;
+            updateInfo();
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+            document.getElementById('autoBtn').disabled = false;
+            document.getElementById('statusMessage').textContent = 'Sorting in progress... Click "Next Step" to continue';
+        }
+
+        // Execute next step
+        async function nextStep() {
+            if (!sorting) return;
+            
+            // Clear previous highlights
+            clearHighlight();
+            
+            if (i < array.length - 1) {
+                if (j < array.length - i - 1) {
+                    // Highlight comparing elements
+                    highlightElements(j, j + 1);
+                    compareCount++;
+                    updateInfo();
+                    
+                    // Wait for animation
+                    await sleep(animationSpeed / 2);
+                    
+                    if (array[j] > array[j + 1]) {
+                        // Swap elements
+                        await swapElements(j, j + 1);
+                        swapCount++;
+                        updateInfo();
+                        document.getElementById('statusMessage').textContent = 
+                            `Found ${array[j + 1]} > ${array[j]}, swapping...`;
+                    } else {
+                        document.getElementById('statusMessage').textContent = 
+                            `${array[j]} ≤ ${array[j + 1]}, no swap needed`;
+                    }
+                    
+                    j++;
+                } else {
+                    // Pass completed
+                    passCount++;
+                    i++;
+                    j = 0;
+                    renderArray(); // Re-render to show sorted elements
+                    document.getElementById('statusMessage').textContent = 
+                        `Pass ${passCount} completed. Largest ${passCount} element(s) in place`;
+                }
+            } else {
+                // Sorting completed
+                finishSort();
+            }
+        }
+
+        // Auto play
+        function autoPlay() {
+            if (!sorting) {
+                startSort();
+            }
+            autoPlaying = true;
+            document.getElementById('autoBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            
+            autoPlayInterval = setInterval(async () => {
+                if (sorting && autoPlaying) {
+                    await nextStep();
+                } else {
+                    clearInterval(autoPlayInterval);
+                }
+            }, animationSpeed);
+        }
+
+        // Pause sorting
+        function pauseSort() {
+            autoPlaying = false;
+            clearInterval(autoPlayInterval);
+            document.getElementById('autoBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('stepBtn').disabled = false;
+        }
+
+        // Reset array
+        function resetArray() {
+            sorting = false;
+            autoPlaying = false;
+            clearInterval(autoPlayInterval);
+            array = [...originalArray];
+            i = 0;
+            j = 0;
+            passCount = 0;
+            compareCount = 0;
+            swapCount = 0;
+            renderArray();
+            updateInfo();
+            clearHighlight();
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stepBtn').disabled = true;
+            document.getElementById('autoBtn').disabled = false;
+            document.getElementById('pauseBtn').disabled = true;
+            document.getElementById('statusMessage').textContent = 'Ready to start sorting...';
+        }
+
+        // Finish sorting
+        function finishSort() {
+            sorting = false;
+            autoPlaying = false;
+            clearInterval(autoPlayInterval);
+            clearHighlight();
+            renderArray();
+            document.getElementById('statusMessage').textContent = 
+                `✅ Sorting complete! Total: ${passCount} passes, ${compareCount} comparisons, ${swapCount} swaps`;
+            document.getElementById('stepBtn').disabled = true;
+            document.getElementById('autoBtn').disabled = true;
+            document.getElementById('pauseBtn').disabled = true;
+        }
+
+        // Highlight elements being compared
+        function highlightElements(index1, index2) {
+            document.getElementById(`element-${index1}`).classList.add('comparing');
+            document.getElementById(`element-${index2}`).classList.add('comparing');
+        }
+
+        // Clear highlights
+        function clearHighlight() {
+            document.querySelectorAll('.array-element').forEach(el => {
+                el.classList.remove('comparing');
+            });
+        }
+
+        // Swap elements animation
+        async function swapElements(index1, index2) {
+            const el1 = document.getElementById(`element-${index1}`);
+            const el2 = document.getElementById(`element-${index2}`);
+            
+            el1.classList.add('swapping');
+            el2.classList.add('swapping');
+            
+            await sleep(animationSpeed / 2);
+            
+            // Swap values in array
+            [array[index1], array[index2]] = [array[index2], array[index1]];
+            
+            // Re-render
+            renderArray();
+            highlightElements(index1, index2);
+        }
+
+        // Update info panel
+        function updateInfo() {
+            document.getElementById('passCount').textContent = passCount;
+            document.getElementById('compareCount').textContent = compareCount;
+            document.getElementById('swapCount').textContent = swapCount;
+        }
+
+        // Sleep function for delays
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Speed control
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            animationSpeed = parseInt(e.target.value);
+            document.getElementById('speedValue').textContent = (animationSpeed / 1000).toFixed(1) + 's';
+            
+            // Reset interval if auto-playing
+            if (autoPlaying) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = setInterval(async () => {
+                    if (sorting && autoPlaying) {
+                        await nextStep();
+                    } else {
+                        clearInterval(autoPlayInterval);
+                    }
+                }, animationSpeed);
+            }
+        });
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', init);
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                if (!sorting) {
+                    startSort();
+                } else if (!autoPlaying && !document.getElementById('stepBtn').disabled) {
+                    nextStep();
+                }
+            } else if (e.key === 'r' || e.key === 'R') {
+                resetArray();
+            } else if (e.key === 'a' || e.key === 'A') {
+                if (!document.getElementById('autoBtn').disabled) {
+                    autoPlay();
+                } else if (!document.getElementById('pauseBtn').disabled) {
+                    pauseSort();
+                }
+            }
+        });
+
+        // Console welcome message
+        console.log('%c🎯 Bubble Sort Animation', 'font-size: 20px; font-weight: bold; color: #667eea;');
+        console.log('%cKeyboard Shortcuts:', 'font-weight: bold;');
+        console.log('Space/Enter: Start or Next Step');
+        console.log('A: Auto Play / Pause');
+        console.log('R: Reset');
+    </script>
+</body>
+</html>
