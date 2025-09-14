@@ -644,7 +644,10 @@
                             `Found ${array[j + 1]} > ${array[j]}, swapping...`;
                     } else {
                         document.getElementById('statusMessage').textContent = 
-                            `${array[j]} ≤ ${array[j + 1]}, no swap needed`;
+                            `❓ Question: ${array[j]} ≤ ${array[j + 1]}, will they swap? (Click to continue)`;
+                        await sleep(500);
+                        document.getElementById('statusMessage').textContent = 
+                            `✅ No! ${array[j]} ≤ ${array[j + 1]}, no swap needed`;
                     }
                     
                     j++;
@@ -669,17 +672,61 @@
                 startSort();
             }
             autoPlaying = true;
+            waitingForAnswer = false; // Skip questions in auto mode
             document.getElementById('autoBtn').disabled = true;
             document.getElementById('pauseBtn').disabled = false;
             document.getElementById('stepBtn').disabled = true;
             
             autoPlayInterval = setInterval(async () => {
                 if (sorting && autoPlaying) {
-                    await nextStep();
+                    // In auto mode, skip questions
+                    if (waitingForAnswer) {
+                        await showAnswer();
+                    }
+                    await nextStepAuto();
                 } else {
                     clearInterval(autoPlayInterval);
                 }
             }, animationSpeed);
+        }
+
+        // Auto play version without questions
+        async function nextStepAuto() {
+            if (!sorting) return;
+            
+            clearHighlight();
+            
+            if (i < array.length - 1) {
+                if (j < array.length - i - 1) {
+                    highlightElements(j, j + 1);
+                    compareCount++;
+                    updateInfo();
+                    
+                    await sleep(animationSpeed / 2);
+                    
+                    if (array[j] > array[j + 1]) {
+                        await swapElements(j, j + 1);
+                        swapCount++;
+                        updateInfo();
+                        document.getElementById('statusMessage').textContent = 
+                            `Swapped ${array[j + 1]} and ${array[j]}`;
+                    } else {
+                        document.getElementById('statusMessage').textContent = 
+                            `${array[j]} ≤ ${array[j + 1]}, no swap needed`;
+                    }
+                    
+                    j++;
+                } else {
+                    passCount++;
+                    i++;
+                    j = 0;
+                    renderArray();
+                    document.getElementById('statusMessage').textContent = 
+                        `Pass ${passCount} completed. Largest ${passCount} element(s) in place`;
+                }
+            } else {
+                finishSort();
+            }
         }
 
         // Pause sorting
